@@ -13,7 +13,8 @@ SOURCES = main.cpp \
           plot.cpp \
           plot1d.cpp \
           plot2d.cpp \
-          qcustomplot.cpp
+          qcustomplot.cpp \
+          rawdata.cpp
 
 HEADERS += \
         data2d.h \
@@ -22,5 +23,6 @@ HEADERS += \
         plot.h \
         plot1d.h \
         plot2d.h \
-        qcustomplot.h
+        qcustomplot.h \
+        rawdata.h
 #RESOURCES += resources.qrc

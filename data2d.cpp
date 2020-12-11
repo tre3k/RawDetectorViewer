@@ -54,6 +54,11 @@ void Data2D::set(unsigned long x, unsigned long y, double value){
     return;
 }
 
+double Data2D::get(unsigned long x, unsigned long y){
+        if((x<sx)||(y<sy)) return data[x][y];
+        return 0.0;
+}
+
 void Data2D::copy(Data2D *array){
     del();
     init(array->size_x(),array->size_y());

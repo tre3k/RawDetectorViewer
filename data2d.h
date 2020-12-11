@@ -21,6 +21,7 @@ public:
 
     double at(unsigned long int x, unsigned long int y);
     void set(unsigned long int x, unsigned long int y, double value);
+    double get(unsigned long int x, unsigned long int y);
     void copy(Data2D *array);
     int errno(void);
     void del(void);
