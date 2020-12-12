@@ -9,8 +9,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
         this->setCentralWidget(plot2d);
         buildDataListDialog();
+        buildOptionDialog();
         buildMenuBar();
         buildToolBar();
+        this->statusBar()->show();
+
+        applyOptions();
+}
+
+MainWindow::~MainWindow(){
+        optiondialog.OptionDialog->close();
+        datalistdialog.DataListDialog->close();
 }
 
 void MainWindow::buildDataListDialog(){
@@ -48,6 +57,8 @@ void MainWindow::buildDataListDialog(){
         datalistdialog.layout_central->addLayout(datalistdialog.layout_push_button);
 
         connect(datalistdialog.push_button_ok,SIGNAL(clicked(bool)),datalistdialog.DataListDialog,SLOT(close()));
+
+        datalistdialog.DataListDialog->setMinimumSize(130,400);
 }
 
 void MainWindow::buildMenuBar(){
@@ -74,6 +85,7 @@ void MainWindow::buildMenuBar(){
         connect(menubar.quit,SIGNAL(triggered(bool)),this,SLOT(close()));
         connect(menubar.open,SIGNAL(triggered(bool)),this,SLOT(openFile()));
         connect(menubar.datalist,SIGNAL(triggered(bool)),datalistdialog.DataListDialog,SLOT(show()));
+        connect(menubar.option,SIGNAL(triggered(bool)),optiondialog.OptionDialog,SLOT(show()));
 }
 
 void MainWindow::buildToolBar(){
@@ -101,6 +113,56 @@ void MainWindow::buildToolBar(){
         connect(toolbar.combo_box_resolution,SIGNAL(currentIndexChanged(int)),this,SLOT(changeResolution(int)));
 }
 
+void MainWindow::buildOptionDialog(){
+        optiondialog.OptionDialog = new QDialog();
+        optiondialog.OptionDialog->setWindowTitle("Options");
+        optiondialog.layout = new QFormLayout();
+        optiondialog.OptionDialog->setLayout(optiondialog.layout);
+
+        optiondialog.button_ok = new QPushButton("ok");
+        optiondialog.button_apply = new QPushButton("apply");
+        optiondialog.button_close = new QPushButton("close");
+
+        QHBoxLayout *button_layout = new QHBoxLayout();
+        button_layout->addStretch(1);
+        button_layout->addWidget(optiondialog.button_apply);
+        button_layout->addWidget(optiondialog.button_ok);
+        button_layout->addWidget(optiondialog.button_close);
+
+        optiondialog.spin_sum_max = new QSpinBox();
+        optiondialog.spin_sum_min = new QSpinBox();
+        optiondialog.spin_sum_max->setRange(0,30000);
+        optiondialog.spin_sum_min->setRange(0,30000);
+        optiondialog.spin_sum_max->setValue(9000);
+        optiondialog.spin_sum_min->setValue(10);
+
+        optiondialog.spin_lambda = new QDoubleSpinBox();
+        optiondialog.spin_lambda->setSuffix(" Å");
+        optiondialog.spin_lambda->setValue(5.0);
+        optiondialog.spin_ds = new QDoubleSpinBox();
+        optiondialog.spin_ds->setSuffix(" m");
+        optiondialog.spin_ds->setValue(1.0);
+        optiondialog.spin_size = new QDoubleSpinBox();
+        optiondialog.spin_size->setSuffix(" mm");
+        optiondialog.spin_size->setRange(0,99999);
+        optiondialog.spin_size->setValue(200.0);
+
+
+
+        optiondialog.layout->addRow("Maximum sum: ", optiondialog.spin_sum_max);
+        optiondialog.layout->addRow("Minimum sum: ", optiondialog.spin_sum_min);
+        optiondialog.layout->addRow("Wavelenght: ", optiondialog.spin_lambda);
+        optiondialog.layout->addRow("Source detector: ", optiondialog.spin_ds);
+        optiondialog.layout->addRow("Size of detector: ", optiondialog.spin_size);
+
+        optiondialog.layout->addRow("",button_layout);
+
+        connect(optiondialog.button_close,SIGNAL(clicked(bool)),optiondialog.OptionDialog,SLOT(close()));
+        connect(optiondialog.button_ok,SIGNAL(clicked(bool)),this,SLOT(applyOptions()));
+        connect(optiondialog.button_ok,SIGNAL(clicked(bool)),optiondialog.OptionDialog,SLOT(close()));
+        connect(optiondialog.button_apply,SIGNAL(clicked(bool)),this,SLOT(applyOptions()));
+}
+
 void MainWindow::loadFile(){
         qDebug() << _filename;
         if(_filename=="") return;
@@ -113,15 +175,15 @@ void MainWindow::loadFile(){
 
         if(_nd!=nullptr) delete _nd;
         _nd = new NeutronData(_resolution,_resolution);
-        _nd->setDlpxpy();
+        _nd->setDlpxpy(_opt.source_detector,
+                       _opt.lambda,
+                       _opt.size_of_detector/_resolution,
+                       _opt.size_of_detector/_resolution
+        );
 
         if(_rd!=nullptr) delete _rd;
-        _opt.min_sum=10;
-        _opt.max_sum=9000;
         _rd = new RawData(_filename,_opt);
 
-        int count = 0;
-        int fail_count = 0;
         QString str;
         QString mark;
         for(auto rd : _rd->vRawData){
@@ -148,16 +210,23 @@ void MainWindow::loadFile(){
                 datalistdialog.list_raw->addItem(str);
         }
 
+        unsigned long int count = 0;
+        unsigned long int fail_count = 0;
         for(auto fd : _rd->vFourData){
+                count ++;
                 if(!fd.correct){
                         mark = "NOT CORRECT!";
+                        fail_count++;
                 }else{
                         mark = "";
                 }
                 str = "x1 = "+QString::number(fd.x1)+
                 ", x2 = "+QString::number(fd.x2)+
                 ", y1 = "+QString::number(fd.y1)+
-                ", y2 = "+QString::number(fd.y2)+" "+mark;
+                ", y2 = "+QString::number(fd.y2)+
+                ", sum x = "+QString::number(fd.x1+fd.x2)+
+                ", sum y = "+QString::number(fd.y1+fd.y2)+
+                "\t"+mark;
                 datalistdialog.list_values->addItem(str);
                 if(!fd.correct) continue;
 
@@ -168,8 +237,12 @@ void MainWindow::loadFile(){
                 _nd->data_matrix->set(ix,iy,
                         _nd->data_matrix->get(ix,iy)+1.0
                 );
+
         }
         plot2d->buildNeutronData(_nd);
+
+        str = "all neutrons: "+QString::number(count)+", correct: "+QString::number(count-fail_count)+", "+QString::number(100.0*(count-fail_count)/count)+"%";
+        this->statusBar()->showMessage(str);
 
 }
 
@@ -195,4 +268,12 @@ void MainWindow::changeResolution(int index){
                 break;
         }
         loadFile();
+}
+
+void MainWindow::applyOptions(){
+        _opt.max_sum = optiondialog.spin_sum_max->value();
+        _opt.min_sum = optiondialog.spin_sum_min->value();
+        _opt.lambda = optiondialog.spin_lambda->value();
+        _opt.size_of_detector = optiondialog.spin_size->value();
+        _opt.source_detector = optiondialog.spin_ds->value();
 }

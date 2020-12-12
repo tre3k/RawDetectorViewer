@@ -14,6 +14,7 @@ class MainWindow : public QMainWindow
         Q_OBJECT
 public:
         explicit MainWindow(QWidget *parent = nullptr);
+        ~MainWindow();
 
 private:
         Plot2D *plot2d;
@@ -36,6 +37,23 @@ private:
                 QPushButton *push_button_ok;
         } datalistdialog;
         void buildDataListDialog();
+
+        struct s_optiondialog{
+                QDialog *OptionDialog;
+                QFormLayout *layout;
+                QPushButton *button_ok;
+                QPushButton *button_apply;
+                QPushButton *button_close;
+
+                QSpinBox *spin_sum_max;
+                QSpinBox *spin_sum_min;
+
+                QDoubleSpinBox *spin_ds;
+                QDoubleSpinBox *spin_lambda;
+                QDoubleSpinBox *spin_size;
+
+        } optiondialog;
+        void buildOptionDialog();
 
         struct s_menubar{
                 QMenuBar *menu_bar;
@@ -67,6 +85,7 @@ public slots:
         }
         void loadFile(void);
         void changeResolution(int index);
+        void applyOptions();
 
 };
 

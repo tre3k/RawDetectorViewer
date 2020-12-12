@@ -12,6 +12,9 @@ class RawData : public QObject
 public:
         struct s_options{
                 int min_sum, max_sum;
+                double source_detector;
+                double lambda;
+                double size_of_detector;
         };
         explicit RawData(QString filename,s_options opt, QObject *parent = nullptr);
 
