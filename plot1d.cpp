@@ -19,6 +19,7 @@ Plot1D::Plot1D(QWidget *parent) : QWidget(parent)
     /* bottom layout */
     tool_layout = new QHBoxLayout();
     button_clean = new QPushButton("clean");
+    button_clean->hide();
     button_rescale = new QPushButton("rescale");
     tool_layout->addWidget(button_clean);
     tool_layout->addWidget(button_rescale);
@@ -52,6 +53,19 @@ void Plot1D::addPlot(QVector<double> abscissa, QVector<double> ordinate, QString
     }else{
         col = QColor(color);
     }
+
+    //qDebug() << bars;
+    //if(bars!=nullptr) delete bars;
+    if(bars == nullptr) bars = new QCPBars(plot->xAxis,plot->yAxis);
+    bars->setData(abscissa,ordinate);
+    plot->rescaleAxes(true);
+    //if(abscissa.size()!=0) bars->setWidth(0.8*abscissa.at(abscissa.size()-1)/abscissa.size());
+    bars->setWidth(0.8);
+    QPen pen(col);
+    bars->setPen(pen);
+    bars->setBrush(col);
+
+    /*
     QPen pen;
     pen.setColor(col);
 
@@ -63,9 +77,12 @@ void Plot1D::addPlot(QVector<double> abscissa, QVector<double> ordinate, QString
     auto *decorator = new QCPSelectionDecorator();
     decorator->setPen(QPen(QColor(color),2));
     plot->graph()->setSelectionDecorator(decorator);
+    */
 
     /* need modificate */
+    /*
     plot->graph()->setLineStyle((QCPGraph::LineStyle)1);
     plot->graph()->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, 5));
     plot->replot();
+    */
 }

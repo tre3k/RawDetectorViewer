@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "plot2d.h"
+#include "plot1d.h"
 #include "rawdata.h"
 
 class MainWindow : public QMainWindow
@@ -55,6 +56,23 @@ private:
         } optiondialog;
         void buildOptionDialog();
 
+        struct s_channelsdialog{
+                QDialog *ChannelsDialog;
+                QVBoxLayout *layout;
+                QTabWidget *tab_widget;
+                QVBoxLayout *layout_tab1;
+                QVBoxLayout *layout_tab2;
+                QWidget *widget_tab1;
+                QWidget *widget_tab2;
+
+                Plot1D *plot_x1;
+                Plot1D *plot_x2;
+                Plot1D *plot_y1;
+                Plot1D *plot_y2;
+
+        } channelsdialog;
+        void buildChannelsDialog();
+
         struct s_menubar{
                 QMenuBar *menu_bar;
                 QMenu *file;
@@ -64,6 +82,7 @@ private:
                 QMenu *edit;
                 QAction *option;
                 QAction *datalist;
+                QAction *channels;
         } menubar;
         void buildMenuBar(void);
 
@@ -75,6 +94,8 @@ private:
         void buildToolBar(void);
 
         QString _filename;
+        int vectorFindOrAdd(QVector<double> *vector,QVector<double> *y,double value);  //retunr index value at vector, or add value to vector and return index
+
 
 signals:
 

@@ -27,6 +27,7 @@ public:
 private:
     QVBoxLayout *layout;
     QHBoxLayout *tool_layout;
+    QCPBars *bars = nullptr;
 
     Plot *plot;
     QPushButton *button_clean;

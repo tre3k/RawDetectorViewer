@@ -3,6 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
         this->setMinimumSize(400,400);
+        this->setGeometry(0,0,600,600);
         this->setWindowTitle("Raw Detector Viewer");
 
         plot2d = new Plot2D();
@@ -10,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         this->setCentralWidget(plot2d);
         buildDataListDialog();
         buildOptionDialog();
+        buildChannelsDialog();
         buildMenuBar();
         buildToolBar();
         this->statusBar()->show();
@@ -20,6 +22,38 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 MainWindow::~MainWindow(){
         optiondialog.OptionDialog->close();
         datalistdialog.DataListDialog->close();
+}
+
+void MainWindow::buildChannelsDialog(){
+        channelsdialog.ChannelsDialog = new QDialog();
+        channelsdialog.ChannelsDialog->setWindowTitle("channels");
+        channelsdialog.tab_widget = new QTabWidget();
+        channelsdialog.layout = new QVBoxLayout();
+
+        channelsdialog.ChannelsDialog->setLayout(channelsdialog.layout);
+        channelsdialog.layout->addWidget(channelsdialog.tab_widget);
+
+        channelsdialog.widget_tab1 = new QWidget();
+        channelsdialog.layout_tab1 = new QVBoxLayout();
+        channelsdialog.widget_tab1->setLayout(channelsdialog.layout_tab1);
+
+        channelsdialog.widget_tab2 = new QWidget();
+        channelsdialog.layout_tab2 = new QVBoxLayout();
+        channelsdialog.widget_tab2->setLayout(channelsdialog.layout_tab2);
+
+        channelsdialog.tab_widget->addTab(channelsdialog.widget_tab1,"channels");
+        channelsdialog.tab_widget->addTab(channelsdialog.widget_tab2,"different");
+
+        channelsdialog.plot_x1 = new Plot1D();
+        channelsdialog.plot_x2 = new Plot1D();
+        channelsdialog.plot_y1 = new Plot1D();
+        channelsdialog.plot_y2 = new Plot1D();
+
+        channelsdialog.layout_tab1->addWidget(channelsdialog.plot_x1);
+        channelsdialog.layout_tab1->addWidget(channelsdialog.plot_x2);
+        channelsdialog.layout_tab1->addWidget(channelsdialog.plot_y1);
+        channelsdialog.layout_tab1->addWidget(channelsdialog.plot_y2);
+        channelsdialog.layout_tab1->setMargin(0);
 }
 
 void MainWindow::buildDataListDialog(){
@@ -73,12 +107,15 @@ void MainWindow::buildMenuBar(){
         menubar.file->addAction(menubar.quit);
 
         menubar.edit = new QMenu("&Edit");
-        menubar.option = new QAction("&Option");
         menubar.datalist = new QAction("Show list of data");
+        menubar.option = new QAction("&Option");
+        menubar.channels = new QAction("&Channels");
 
         menubar.menu_bar->addMenu(menubar.edit);
-        menubar.edit->addAction(menubar.option);
+        menubar.edit->addAction(menubar.channels);
         menubar.edit->addAction(menubar.datalist);
+        menubar.edit->addSeparator();
+        menubar.edit->addAction(menubar.option);
 
         this->setMenuBar(menubar.menu_bar);
 
@@ -86,6 +123,7 @@ void MainWindow::buildMenuBar(){
         connect(menubar.open,SIGNAL(triggered(bool)),this,SLOT(openFile()));
         connect(menubar.datalist,SIGNAL(triggered(bool)),datalistdialog.DataListDialog,SLOT(show()));
         connect(menubar.option,SIGNAL(triggered(bool)),optiondialog.OptionDialog,SLOT(show()));
+        connect(menubar.channels,SIGNAL(triggered(bool)),channelsdialog.ChannelsDialog,SLOT(show()));
 }
 
 void MainWindow::buildToolBar(){
@@ -163,6 +201,26 @@ void MainWindow::buildOptionDialog(){
         connect(optiondialog.button_apply,SIGNAL(clicked(bool)),this,SLOT(applyOptions()));
 }
 
+int MainWindow::vectorFindOrAdd(QVector<double> *vector,QVector<double> *y, double value){
+        int index = 0;
+        if(vector->size()==0){
+                vector->append(value);
+                y->clear();
+                y->append(1);
+                return 0;
+        }
+        for(auto v : *vector){
+                if(v==value){
+                        (*y)[index] += 1;
+                        return index;
+                }
+                index ++;
+        }
+        vector->append(value);
+        y->append(1);
+        return vector->size()-1;
+}
+
 void MainWindow::loadFile(){
         qDebug() << _filename;
         if(_filename=="") return;
@@ -186,19 +244,33 @@ void MainWindow::loadFile(){
 
         QString str;
         QString mark;
+
+        QVector<double> y_x1;
+        QVector<double> x_x1;
+        QVector<double> y_x2;
+        QVector<double> x_x2;
+        QVector<double> y_y1;
+        QVector<double> x_y1;
+        QVector<double> y_y2;
+        QVector<double> x_y2;
+
         for(auto rd : _rd->vRawData){
                 switch(rd.code){
                 case 1:
                         mark = "x2";
+                        vectorFindOrAdd(&x_x2,&y_x2,rd.value);
                         break;
                 case 3:
                         mark = "y2";
+                        vectorFindOrAdd(&x_y2,&y_y2,rd.value);
                         break;
                 case 5:
                         mark = "x1";
+                        vectorFindOrAdd(&x_x1,&y_x1,rd.value);
                         break;
                 case 7:
                         mark = "y1";
+                        vectorFindOrAdd(&x_y1,&y_y1,rd.value);
                         break;
                 default:
                         mark = "?";
@@ -208,7 +280,15 @@ void MainWindow::loadFile(){
                            QString::number(rd.code)+" ["+mark+"] = " +
                            QString::number(rd.value);
                 datalistdialog.list_raw->addItem(str);
+
+
         }
+
+        channelsdialog.plot_x1->addPlot(x_x1,y_x1,"x1","red");
+        channelsdialog.plot_x2->addPlot(x_x2,y_x2,"x2","red");
+        channelsdialog.plot_y1->addPlot(x_y1,y_y1,"y1","blue");
+        channelsdialog.plot_y2->addPlot(x_y2,y_y2,"y2","blue");
+
 
         unsigned long int count = 0;
         unsigned long int fail_count = 0;
