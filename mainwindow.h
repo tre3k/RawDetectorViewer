@@ -93,7 +93,7 @@ private:
         } toolbar;
         void buildToolBar(void);
 
-        QString _filename;
+        QStringList _filename;
         int vectorFindOrAdd(QVector<double> *vector,QVector<double> *y,double value);  //retunr index value at vector, or add value to vector and return index
 
 
@@ -101,7 +101,8 @@ signals:
 
 public slots:
         void openFile(void){
-                _filename = QFileDialog::getOpenFileName(nullptr,"open *.raw file","","*.raw");
+                //_filename = QFileDialog::getOpenFileName(nullptr,"open *.raw file","","*.raw");
+                _filename = QFileDialog::getOpenFileNames(nullptr,"open *.raw file","","*.raw");
                 loadFile();
         }
         void loadFile(void);

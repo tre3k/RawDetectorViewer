@@ -223,24 +223,10 @@ int MainWindow::vectorFindOrAdd(QVector<double> *vector,QVector<double> *y, doub
 
 void MainWindow::loadFile(){
         qDebug() << _filename;
-        if(_filename=="") return;
+        if(_filename.size()==0) return;
 
         unsigned long ix = 0;
         unsigned long iy = 0;
-
-        datalistdialog.list_raw->clear();
-        datalistdialog.list_values->clear();
-
-        if(_nd!=nullptr) delete _nd;
-        _nd = new NeutronData(_resolution,_resolution);
-        _nd->setDlpxpy(_opt.source_detector,
-                       _opt.lambda,
-                       _opt.size_of_detector/_resolution,
-                       _opt.size_of_detector/_resolution
-        );
-
-        if(_rd!=nullptr) delete _rd;
-        _rd = new RawData(_filename,_opt);
 
         QString str;
         QString mark;
@@ -254,71 +240,89 @@ void MainWindow::loadFile(){
         QVector<double> y_y2;
         QVector<double> x_y2;
 
-        for(auto rd : _rd->vRawData){
-                switch(rd.code){
-                case 1:
-                        mark = "x2";
-                        vectorFindOrAdd(&x_x2,&y_x2,rd.value);
-                        break;
-                case 3:
-                        mark = "y2";
-                        vectorFindOrAdd(&x_y2,&y_y2,rd.value);
-                        break;
-                case 5:
-                        mark = "x1";
-                        vectorFindOrAdd(&x_x1,&y_x1,rd.value);
-                        break;
-                case 7:
-                        mark = "y1";
-                        vectorFindOrAdd(&x_y1,&y_y1,rd.value);
-                        break;
-                default:
-                        mark = "?";
-                }
-
-                str = "( 0x"+QString::number(rd.raw,16)+ " ) " +
-                           QString::number(rd.code)+" ["+mark+"] = " +
-                           QString::number(rd.value);
-                datalistdialog.list_raw->addItem(str);
-
-
-        }
-
-        channelsdialog.plot_x1->addPlot(x_x1,y_x1,"x1","red");
-        channelsdialog.plot_x2->addPlot(x_x2,y_x2,"x2","red");
-        channelsdialog.plot_y1->addPlot(x_y1,y_y1,"y1","blue");
-        channelsdialog.plot_y2->addPlot(x_y2,y_y2,"y2","blue");
-
-
         unsigned long int count = 0;
         unsigned long int fail_count = 0;
-        for(auto fd : _rd->vFourData){
-                count ++;
-                if(!fd.correct){
-                        mark = "NOT CORRECT!";
-                        fail_count++;
-                }else{
-                        mark = "";
-                }
-                str = "x1 = "+QString::number(fd.x1)+
-                ", x2 = "+QString::number(fd.x2)+
-                ", y1 = "+QString::number(fd.y1)+
-                ", y2 = "+QString::number(fd.y2)+
-                ", sum x = "+QString::number(fd.x1+fd.x2)+
-                ", sum y = "+QString::number(fd.y1+fd.y2)+
-                "\t"+mark;
-                datalistdialog.list_values->addItem(str);
-                if(!fd.correct) continue;
 
-                ix = (unsigned long)_resolution*fd.x1/(fd.x1+fd.x2);
-                iy = (unsigned long)_resolution*fd.y1/(fd.y1+fd.y2);
-                //qDebug() << ix << " : " << iy;
+        datalistdialog.list_raw->clear();
+        datalistdialog.list_values->clear();
 
-                _nd->data_matrix->set(ix,iy,
-                        _nd->data_matrix->get(ix,iy)+1.0
-                );
+
+        if(_nd!=nullptr) delete _nd;
+        _nd = new NeutronData(_resolution,_resolution);
+        _nd->setDlpxpy(_opt.source_detector,
+                       _opt.lambda,
+                       _opt.size_of_detector/_resolution,
+                       _opt.size_of_detector/_resolution
+        );
+
+        if(_rd!=nullptr) delete _rd;
+        for(auto filename : _filename){
+              _rd = new RawData(filename,_opt);
+              for(auto rd : _rd->vRawData){
+                      switch(rd.code){
+                      case 1:
+                              mark = "x2";
+                              vectorFindOrAdd(&x_x2,&y_x2,rd.value);
+                              break;
+                      case 3:
+                              mark = "y2";
+                              vectorFindOrAdd(&x_y2,&y_y2,rd.value);
+                              break;
+                      case 5:
+                              mark = "x1";
+                              vectorFindOrAdd(&x_x1,&y_x1,rd.value);
+                              break;
+                      case 7:
+                              mark = "y1";
+                              vectorFindOrAdd(&x_y1,&y_y1,rd.value);
+                              break;
+                      default:
+                              mark = "?";
+                      }
+
+                      str = "( 0x"+QString::number(rd.raw,16)+ " ) " +
+                                 QString::number(rd.code)+" ["+mark+"] = " +
+                                 QString::number(rd.value);
+                      datalistdialog.list_raw->addItem(str);
+              }
+
+
+              for(auto fd : _rd->vFourData){
+                      count ++;
+                      if(!fd.correct){
+                              mark = "NOT CORRECT!";
+                              fail_count++;
+                      }else{
+                              mark = "";
+                      }
+                      str = "x1 = "+QString::number(fd.x1)+
+                      ", x2 = "+QString::number(fd.x2)+
+                      ", y1 = "+QString::number(fd.y1)+
+                      ", y2 = "+QString::number(fd.y2)+
+                      ", sum x = "+QString::number(fd.x1+fd.x2)+
+                      ", sum y = "+QString::number(fd.y1+fd.y2)+
+                      "\t"+mark;
+                      datalistdialog.list_values->addItem(str);
+                      if(!fd.correct) continue;
+
+                      ix = (unsigned long)_resolution*fd.x1/(fd.x1+fd.x2);
+                      iy = (unsigned long)_resolution*fd.y1/(fd.y1+fd.y2);
+                      //qDebug() << ix << " : " << iy;
+
+                      _nd->data_matrix->set(ix,iy,
+                              _nd->data_matrix->get(ix,iy)+1.0
+                      );
+
+              }
+
+              channelsdialog.plot_x1->addPlot(x_x1,y_x1,"x1","red");
+              channelsdialog.plot_x2->addPlot(x_x2,y_x2,"x2","red");
+              channelsdialog.plot_y1->addPlot(x_y1,y_y1,"y1","blue");
+              channelsdialog.plot_y2->addPlot(x_y2,y_y2,"y2","blue");
+
 
         }
+
         plot2d->buildNeutronData(_nd);
 
         str = "all neutrons: "+QString::number(count)+", correct: "+QString::number(count-fail_count)+", "+QString::number(100.0*(count-fail_count)/count)+"%";
