@@ -144,6 +144,12 @@ void MainWindow::buildToolBar(){
         toolbar.tool_bar->addWidget(new QLabel(" resolution: "));
         toolbar.tool_bar->addWidget(toolbar.combo_box_resolution);
 
+        toolbar.check_x = new QCheckBox("mirror x");
+        toolbar.check_y = new QCheckBox("mirror y");
+
+        toolbar.tool_bar->addWidget(toolbar.check_x);
+        toolbar.tool_bar->addWidget(toolbar.check_y);
+
         addToolBar(toolbar.tool_bar);
         toolbar.tool_bar->show();
 
@@ -305,8 +311,16 @@ void MainWindow::loadFile(){
                       datalistdialog.list_values->addItem(str);
                       if(!fd.correct) continue;
 
-                      ix = (unsigned long)_resolution*fd.x1/(fd.x1+fd.x2);
-                      iy = (unsigned long)_resolution*fd.y1/(fd.y1+fd.y2);
+                      if(toolbar.check_x->isChecked()){
+                              ix = (unsigned long)_resolution*fd.x2/(fd.x1+fd.x2);
+                      }else{
+                              ix = (unsigned long)_resolution*fd.x1/(fd.x1+fd.x2);
+                      }
+                      if(toolbar.check_y->isChecked()){
+                              iy = (unsigned long)_resolution*fd.y2/(fd.y1+fd.y2);
+                      }else{
+                              iy = (unsigned long)_resolution*fd.y1/(fd.y1+fd.y2);
+                      }
                       //qDebug() << ix << " : " << iy;
 
                       _nd->data_matrix->set(ix,iy,
@@ -319,8 +333,6 @@ void MainWindow::loadFile(){
               channelsdialog.plot_x2->addPlot(x_x2,y_x2,"x2","red");
               channelsdialog.plot_y1->addPlot(x_y1,y_y1,"y1","blue");
               channelsdialog.plot_y2->addPlot(x_y2,y_y2,"y2","blue");
-
-
         }
 
         plot2d->buildNeutronData(_nd);

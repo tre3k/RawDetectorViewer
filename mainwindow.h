@@ -90,6 +90,8 @@ private:
                 QToolBar *tool_bar;
                 QPushButton *push_button_update;
                 QComboBox *combo_box_resolution;
+
+                QCheckBox *check_x = nullptr, *check_y = nullptr;
         } toolbar;
         void buildToolBar(void);
 
