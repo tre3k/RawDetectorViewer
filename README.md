@@ -7,4 +7,4 @@ File->Open Откроет выбранный файл, можно выделит
 
 ## Сумма нетйронов в заданном секторе
 Edit->Box Average, Из единиц измерения пока доступны только пиксли.
-![sector](https://github.com/tre3k/RawDetectorViewer/blob/master/screen.jpg)
+![sector](https://github.com/tre3k/RawDetectorViewer/blob/master/sector.jpg)
