@@ -5,6 +5,10 @@
 #include <QObject>
 #include <QFileDialog>
 #include <QDebug>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QAction>
+#include <QDoubleSpinBox>
 
 #include "plot2d.h"
 #include "plot1d.h"
@@ -75,7 +79,15 @@ private:
 
         struct s_boxaveragedialog{
                 QDialog *boxaveragedialog;
+
+                QVBoxLayout *layout;
+                QHBoxLayout *layout_button;
+                QFormLayout *layout_form;
+
+                QPushButton *button_average;
+                QPushButton *button_close;
         } boxaveragedialog;
+        void buildBoxAverageDialog(void);
 
         struct s_menubar{
                 QMenuBar *menu_bar;

@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         buildDataListDialog();
         buildOptionDialog();
         buildChannelsDialog();
+        buildBoxAverageDialog();
+
         buildMenuBar();
         buildToolBar();
         this->statusBar()->show();
@@ -95,6 +97,28 @@ void MainWindow::buildDataListDialog(){
         datalistdialog.DataListDialog->setMinimumSize(130,400);
 }
 
+void MainWindow::buildBoxAverageDialog(){
+        boxaveragedialog.boxaveragedialog = new QDialog();
+        boxaveragedialog.boxaveragedialog->setWindowTitle("BoxAverage");
+        boxaveragedialog.layout = new QVBoxLayout();
+        boxaveragedialog.layout_button = new QHBoxLayout();
+        boxaveragedialog.layout_form = new QFormLayout();
+
+        boxaveragedialog.button_close = new QPushButton("close");
+        boxaveragedialog.button_average = new QPushButton("average");
+
+        boxaveragedialog.layout->addLayout(boxaveragedialog.layout_form);
+        boxaveragedialog.layout->addLayout(boxaveragedialog.layout_button);
+
+        boxaveragedialog.boxaveragedialog->setLayout(boxaveragedialog.layout);
+
+        boxaveragedialog.layout_button->addStretch();
+        boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_average);
+        boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_close);
+
+
+}
+
 void MainWindow::buildMenuBar(){
         menubar.menu_bar = new QMenuBar();
         menubar.file = new QMenu("&File");
@@ -127,6 +151,7 @@ void MainWindow::buildMenuBar(){
         connect(menubar.datalist,SIGNAL(triggered(bool)),datalistdialog.DataListDialog,SLOT(show()));
         connect(menubar.option,SIGNAL(triggered(bool)),optiondialog.OptionDialog,SLOT(show()));
         connect(menubar.channels,SIGNAL(triggered(bool)),channelsdialog.ChannelsDialog,SLOT(show()));
+        connect(menubar.box_average,SIGNAL(triggered(bool)),boxaveragedialog.boxaveragedialog,SLOT(show()));
 }
 
 void MainWindow::buildToolBar(){
