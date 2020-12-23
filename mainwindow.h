@@ -122,6 +122,8 @@ private:
         QStringList _filenames;
         int vectorFindOrAdd(QVector<double> *vector,QVector<double> *y,double value);  //retunr index value at vector, or add value to vector and return index
 
+        double amountNeutronsInPixels(int x,int y,int h,int w);
+
 
 signals:
 

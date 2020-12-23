@@ -119,19 +119,24 @@ void MainWindow::buildBoxAverageDialog(){
         boxaveragedialog.spinbox_h->setRange(-99999.99,99999.99);
         boxaveragedialog.spinbox_w->setRange(-99999.99,99999.99);
 
+        boxaveragedialog.spinbox_center_x->setSuffix(" pix");
+        boxaveragedialog.spinbox_center_y->setSuffix(" pix");
+        boxaveragedialog.spinbox_h->setSuffix(" pix");
+        boxaveragedialog.spinbox_w->setSuffix(" pix");
+
         boxaveragedialog.layout->addLayout(boxaveragedialog.layout_form);
         boxaveragedialog.layout->addLayout(boxaveragedialog.layout_button);
 
         boxaveragedialog.boxaveragedialog->setLayout(boxaveragedialog.layout);
 
         boxaveragedialog.layout_form->addRow("Center x: ",boxaveragedialog.spinbox_center_x);
-        boxaveragedialog.layout_form->addRow("Center x: ",boxaveragedialog.spinbox_center_y);
+        boxaveragedialog.layout_form->addRow("Center y: ",boxaveragedialog.spinbox_center_y);
         boxaveragedialog.layout_form->addRow("Hight: ",boxaveragedialog.spinbox_h);
         boxaveragedialog.layout_form->addRow("Width: ",boxaveragedialog.spinbox_w);
         boxaveragedialog.layout_form->addRow("Neutrons: ",boxaveragedialog.label_neutron_sum);
 
         boxaveragedialog.layout_button->addStretch();
-        boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_average);
+        //boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_average);
         boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_close);
 
         connect(boxaveragedialog.button_close,SIGNAL(clicked()),boxaveragedialog.boxaveragedialog,SLOT(close()));
@@ -414,6 +419,19 @@ void MainWindow::changeResolution(int index){
         loadFile();
 }
 
+double MainWindow::amountNeutronsInPixels(int x,int y,int h,int w){
+        double amount = 0;
+        //_nd->data_matrix->at
+
+        for(int i=x-w/2; i<x+w/2; i++){
+                for(int j=y-h/2; j<y+h/2; j++){
+                        amount += _nd->data_matrix->at(i,j);
+                }
+        }
+
+        return amount;
+}
+
 void MainWindow::applyOptions(){
         _opt.max_sum = optiondialog.spin_sum_max->value();
         _opt.min_sum = optiondialog.spin_sum_min->value();
@@ -442,6 +460,13 @@ void MainWindow::averageBoxChanged(double value){
                  boxaveragedialog.spinbox_center_y->value(),
                  boxaveragedialog.spinbox_h->value(),
                  boxaveragedialog.spinbox_w->value());
+        boxaveragedialog.label_neutron_sum->setText("<b>"+
+                                                    QString::number(amountNeutronsInPixels(
+                                                                            boxaveragedialog.spinbox_center_x->value(),
+                                                                            boxaveragedialog.spinbox_center_y->value(),
+                                                                            boxaveragedialog.spinbox_h->value(),
+                                                                            boxaveragedialog.spinbox_w->value()))+
+                                                    "</b>");
 }
 
 /* EOF */
