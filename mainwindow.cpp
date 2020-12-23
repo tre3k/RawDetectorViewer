@@ -107,11 +107,14 @@ void MainWindow::buildMenuBar(){
         menubar.file->addAction(menubar.quit);
 
         menubar.edit = new QMenu("&Edit");
+        menubar.box_average = new QAction("Box average");
         menubar.datalist = new QAction("Show list of data");
         menubar.option = new QAction("&Option");
         menubar.channels = new QAction("&Channels");
 
         menubar.menu_bar->addMenu(menubar.edit);
+        menubar.edit->addAction(menubar.box_average);
+        menubar.edit->addSeparator();
         menubar.edit->addAction(menubar.channels);
         menubar.edit->addAction(menubar.datalist);
         menubar.edit->addSeparator();
@@ -153,6 +156,8 @@ void MainWindow::buildToolBar(){
         addToolBar(toolbar.tool_bar);
         toolbar.tool_bar->show();
 
+        connect(toolbar.check_x,SIGNAL(stateChanged(int)),this,SLOT(loadFile()));
+        connect(toolbar.check_y,SIGNAL(stateChanged(int)),this,SLOT(loadFile()));
         connect(toolbar.push_button_update,SIGNAL(clicked(bool)),this,SLOT(loadFile()));
         connect(toolbar.combo_box_resolution,SIGNAL(currentIndexChanged(int)),this,SLOT(changeResolution(int)));
 }
@@ -191,8 +196,6 @@ void MainWindow::buildOptionDialog(){
         optiondialog.spin_size->setRange(0,99999);
         optiondialog.spin_size->setValue(200.0);
 
-
-
         optiondialog.layout->addRow("Maximum sum: ", optiondialog.spin_sum_max);
         optiondialog.layout->addRow("Minimum sum: ", optiondialog.spin_sum_min);
         optiondialog.layout->addRow("Wavelenght: ", optiondialog.spin_lambda);
@@ -228,8 +231,7 @@ int MainWindow::vectorFindOrAdd(QVector<double> *vector,QVector<double> *y, doub
 }
 
 void MainWindow::loadFile(){
-        qDebug() << _filename;
-        if(_filename.size()==0) return;
+        if(_filenames.size()==0) return;
 
         unsigned long ix = 0;
         unsigned long iy = 0;
@@ -262,7 +264,7 @@ void MainWindow::loadFile(){
         );
 
         if(_rd!=nullptr) delete _rd;
-        for(auto filename : _filename){
+        for(auto filename : _filenames){
               _rd = new RawData(filename,_opt);
               for(auto rd : _rd->vRawData){
                       switch(rd.code){
@@ -312,16 +314,15 @@ void MainWindow::loadFile(){
                       if(!fd.correct) continue;
 
                       if(toolbar.check_x->isChecked()){
-                              ix = (unsigned long)_resolution*fd.x2/(fd.x1+fd.x2);
-                      }else{
                               ix = (unsigned long)_resolution*fd.x1/(fd.x1+fd.x2);
+                      }else{
+                              ix = (unsigned long)_resolution*fd.x2/(fd.x1+fd.x2);
                       }
                       if(toolbar.check_y->isChecked()){
                               iy = (unsigned long)_resolution*fd.y2/(fd.y1+fd.y2);
                       }else{
                               iy = (unsigned long)_resolution*fd.y1/(fd.y1+fd.y2);
                       }
-                      //qDebug() << ix << " : " << iy;
 
                       _nd->data_matrix->set(ix,iy,
                               _nd->data_matrix->get(ix,iy)+1.0

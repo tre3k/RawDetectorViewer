@@ -73,6 +73,10 @@ private:
         } channelsdialog;
         void buildChannelsDialog();
 
+        struct s_boxaveragedialog{
+                QDialog *boxaveragedialog;
+        } boxaveragedialog;
+
         struct s_menubar{
                 QMenuBar *menu_bar;
                 QMenu *file;
@@ -80,6 +84,7 @@ private:
                 QAction *quit;
 
                 QMenu *edit;
+                QAction *box_average;
                 QAction *option;
                 QAction *datalist;
                 QAction *channels;
@@ -95,7 +100,7 @@ private:
         } toolbar;
         void buildToolBar(void);
 
-        QStringList _filename;
+        QStringList _filenames;
         int vectorFindOrAdd(QVector<double> *vector,QVector<double> *y,double value);  //retunr index value at vector, or add value to vector and return index
 
 
@@ -103,8 +108,7 @@ signals:
 
 public slots:
         void openFile(void){
-                //_filename = QFileDialog::getOpenFileName(nullptr,"open *.raw file","","*.raw");
-                _filename = QFileDialog::getOpenFileNames(nullptr,"open *.raw file","","*.raw");
+                _filenames = QFileDialog::getOpenFileNames(nullptr,"open *.raw file","","*.raw");
                 loadFile();
         }
         void loadFile(void);
