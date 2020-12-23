@@ -84,6 +84,13 @@ private:
                 QHBoxLayout *layout_button;
                 QFormLayout *layout_form;
 
+                QDoubleSpinBox *spinbox_center_x;
+                QDoubleSpinBox *spinbox_center_y;
+                QDoubleSpinBox *spinbox_w;
+                QDoubleSpinBox *spinbox_h;
+
+                QLabel *label_neutron_sum;
+
                 QPushButton *button_average;
                 QPushButton *button_close;
         } boxaveragedialog;
@@ -126,6 +133,8 @@ public slots:
         void loadFile(void);
         void changeResolution(int index);
         void applyOptions();
+        void paintBox(double center_x, double center_y, double h, double w);
+        void averageBoxChanged(double value);
 
 };
 

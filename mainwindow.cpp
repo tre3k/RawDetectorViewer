@@ -107,15 +107,38 @@ void MainWindow::buildBoxAverageDialog(){
         boxaveragedialog.button_close = new QPushButton("close");
         boxaveragedialog.button_average = new QPushButton("average");
 
+        boxaveragedialog.spinbox_center_x = new QDoubleSpinBox();
+        boxaveragedialog.spinbox_center_y = new QDoubleSpinBox();
+        boxaveragedialog.spinbox_h = new QDoubleSpinBox();
+        boxaveragedialog.spinbox_w = new QDoubleSpinBox();
+
+        boxaveragedialog.label_neutron_sum = new QLabel("<b>0</b>");
+
+        boxaveragedialog.spinbox_center_x->setRange(-99999.99,99999.99);
+        boxaveragedialog.spinbox_center_y->setRange(-99999.99,99999.99);
+        boxaveragedialog.spinbox_h->setRange(-99999.99,99999.99);
+        boxaveragedialog.spinbox_w->setRange(-99999.99,99999.99);
+
         boxaveragedialog.layout->addLayout(boxaveragedialog.layout_form);
         boxaveragedialog.layout->addLayout(boxaveragedialog.layout_button);
 
         boxaveragedialog.boxaveragedialog->setLayout(boxaveragedialog.layout);
 
+        boxaveragedialog.layout_form->addRow("Center x: ",boxaveragedialog.spinbox_center_x);
+        boxaveragedialog.layout_form->addRow("Center x: ",boxaveragedialog.spinbox_center_y);
+        boxaveragedialog.layout_form->addRow("Hight: ",boxaveragedialog.spinbox_h);
+        boxaveragedialog.layout_form->addRow("Width: ",boxaveragedialog.spinbox_w);
+        boxaveragedialog.layout_form->addRow("Neutrons: ",boxaveragedialog.label_neutron_sum);
+
         boxaveragedialog.layout_button->addStretch();
         boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_average);
         boxaveragedialog.layout_button->addWidget(boxaveragedialog.button_close);
 
+        connect(boxaveragedialog.button_close,SIGNAL(clicked()),boxaveragedialog.boxaveragedialog,SLOT(close()));
+        connect(boxaveragedialog.spinbox_center_x,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
+        connect(boxaveragedialog.spinbox_center_y,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
+        connect(boxaveragedialog.spinbox_w,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
+        connect(boxaveragedialog.spinbox_h,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
 
 }
 
@@ -365,7 +388,6 @@ void MainWindow::loadFile(){
 
         str = "all neutrons: "+QString::number(count)+", correct: "+QString::number(count-fail_count)+", "+QString::number(100.0*(count-fail_count)/count)+"%";
         this->statusBar()->showMessage(str);
-
 }
 
 void MainWindow::changeResolution(int index){
@@ -399,3 +421,27 @@ void MainWindow::applyOptions(){
         _opt.size_of_detector = optiondialog.spin_size->value();
         _opt.source_detector = optiondialog.spin_ds->value();
 }
+
+void MainWindow::paintBox(double center_x, double center_y, double h, double w){
+        plot2d->getPlot()->clearItems();
+        if(boxaveragedialog.boxaveragedialog->isHidden()) return;
+        QPen pen;
+        pen.setStyle(Qt::DashLine);
+        pen.setWidth(1);
+        pen.setColor("black");
+
+        QCPItemRect *box = new QCPItemRect(plot2d->getPlot());
+        box->setPen(pen);
+        box->topLeft->setCoords(center_x-w/2,center_y-h/2);
+        box->bottomRight->setCoords(center_x+w/2,center_y+h/2);
+        plot2d->getPlot()->replot();
+}
+
+void MainWindow::averageBoxChanged(double value){
+        paintBox(boxaveragedialog.spinbox_center_x->value(),
+                 boxaveragedialog.spinbox_center_y->value(),
+                 boxaveragedialog.spinbox_h->value(),
+                 boxaveragedialog.spinbox_w->value());
+}
+
+/* EOF */

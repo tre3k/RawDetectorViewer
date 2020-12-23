@@ -40,6 +40,7 @@ public:
 
     double getRecoordX(double rel_x);
     double getRecoordY(double rel_y);
+    int getCurrentUnits(void){return combo_select_units->currentIndex();}
 
 protected:
     Plot *plot;
@@ -61,6 +62,7 @@ protected:
 
 
 signals:
+    void UnitsChanged(int);
 
 public slots:
     void logScale(bool state);

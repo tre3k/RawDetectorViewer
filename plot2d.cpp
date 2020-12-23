@@ -166,6 +166,7 @@ void Plot2D::setAxisUnit(int unit){
         break;
     }
     setHoldRange();
+    emit UnitsChanged(unit);
 }
 
 void Plot2D::logScale(bool state){
