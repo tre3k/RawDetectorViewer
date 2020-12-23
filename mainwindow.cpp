@@ -235,8 +235,8 @@ void MainWindow::buildOptionDialog(){
         optiondialog.spin_sum_min = new QSpinBox();
         optiondialog.spin_sum_max->setRange(0,30000);
         optiondialog.spin_sum_min->setRange(0,30000);
-        optiondialog.spin_sum_max->setValue(9000);
-        optiondialog.spin_sum_min->setValue(10);
+        optiondialog.spin_sum_max->setValue(5000);  //default values
+        optiondialog.spin_sum_min->setValue(3500);
 
         optiondialog.spin_lambda = new QDoubleSpinBox();
         optiondialog.spin_lambda->setSuffix(" Å");
