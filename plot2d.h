@@ -36,7 +36,7 @@ public:
     void buildNeutronData(void);
     void setNeutronData(NeutronData *n_data);
     int getCurrentUnit(void);
-    auto getPlot(void){return plot;}
+    Plot *getPlot(void){return plot;}
 
     double getRecoordX(double rel_x);
     double getRecoordY(double rel_y);
