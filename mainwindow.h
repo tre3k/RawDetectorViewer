@@ -61,6 +61,15 @@ private:
         void buildOptionDialog();
 
         struct s_channelsdialog{
+                QVector<double> y_x1;
+                QVector<double> x_x1;
+                QVector<double> y_x2;
+                QVector<double> x_x2;
+                QVector<double> y_y1;
+                QVector<double> x_y1;
+                QVector<double> y_y2;
+                QVector<double> x_y2;
+
                 QDialog *ChannelsDialog;
                 QVBoxLayout *layout;
                 QTabWidget *tab_widget;
@@ -100,6 +109,8 @@ private:
                 QMenuBar *menu_bar;
                 QMenu *file;
                 QAction *open;
+                QMenu *menu_export;
+                QAction *export_txt;
                 QAction *quit;
 
                 QMenu *edit;
@@ -132,6 +143,7 @@ public slots:
                 _filenames = QFileDialog::getOpenFileNames(nullptr,"open *.raw file","","*.raw");
                 loadFile();
         }
+        void exportTxt(void);
         void loadFile(void);
         void changeResolution(int index);
         void applyOptions();

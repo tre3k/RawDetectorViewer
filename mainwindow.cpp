@@ -56,6 +56,11 @@ void MainWindow::buildChannelsDialog(){
         channelsdialog.layout_tab1->addWidget(channelsdialog.plot_y1);
         channelsdialog.layout_tab1->addWidget(channelsdialog.plot_y2);
         channelsdialog.layout_tab1->setMargin(0);
+
+        channelsdialog.plot_x1->getPlot()->yAxis->setLabel("x1");
+        channelsdialog.plot_x2->getPlot()->yAxis->setLabel("x2");
+        channelsdialog.plot_y1->getPlot()->yAxis->setLabel("y1");
+        channelsdialog.plot_y2->getPlot()->yAxis->setLabel("y2");
 }
 
 void MainWindow::buildDataListDialog(){
@@ -151,10 +156,14 @@ void MainWindow::buildMenuBar(){
         menubar.menu_bar = new QMenuBar();
         menubar.file = new QMenu("&File");
         menubar.open = new QAction("&Open");
+        menubar.menu_export = new QMenu("&Export");
+        menubar.export_txt = new QAction("txt");
         menubar.quit = new QAction("&Quit");
 
         menubar.menu_bar->addMenu(menubar.file);
         menubar.file->addAction(menubar.open);
+        menubar.file->addMenu(menubar.menu_export);
+        menubar.menu_export->addAction(menubar.export_txt);
         menubar.file->addSeparator();
         menubar.file->addAction(menubar.quit);
 
@@ -176,6 +185,7 @@ void MainWindow::buildMenuBar(){
 
         connect(menubar.quit,SIGNAL(triggered(bool)),this,SLOT(close()));
         connect(menubar.open,SIGNAL(triggered(bool)),this,SLOT(openFile()));
+        connect(menubar.export_txt,SIGNAL(triggered(bool)),this,SLOT(exportTxt()));
         connect(menubar.datalist,SIGNAL(triggered(bool)),datalistdialog.DataListDialog,SLOT(show()));
         connect(menubar.option,SIGNAL(triggered(bool)),optiondialog.OptionDialog,SLOT(show()));
         connect(menubar.channels,SIGNAL(triggered(bool)),channelsdialog.ChannelsDialog,SLOT(show()));
@@ -292,14 +302,14 @@ void MainWindow::loadFile(){
         QString str;
         QString mark;
 
-        QVector<double> y_x1;
-        QVector<double> x_x1;
-        QVector<double> y_x2;
-        QVector<double> x_x2;
-        QVector<double> y_y1;
-        QVector<double> x_y1;
-        QVector<double> y_y2;
-        QVector<double> x_y2;
+        channelsdialog.y_x1.clear();
+        channelsdialog.x_x1.clear();
+        channelsdialog.y_x2.clear();
+        channelsdialog.x_x2.clear();
+        channelsdialog.y_y1.clear();
+        channelsdialog.x_y1.clear();
+        channelsdialog.y_y2.clear();
+        channelsdialog.x_y2.clear();
 
         unsigned long int count = 0;
         unsigned long int fail_count = 0;
@@ -323,19 +333,19 @@ void MainWindow::loadFile(){
                       switch(rd.code){
                       case 1:
                               mark = "x2";
-                              vectorFindOrAdd(&x_x2,&y_x2,rd.value);
+                              vectorFindOrAdd(&channelsdialog.x_x2,&channelsdialog.y_x2,rd.value);
                               break;
                       case 3:
                               mark = "y2";
-                              vectorFindOrAdd(&x_y2,&y_y2,rd.value);
+                              vectorFindOrAdd(&channelsdialog.x_y2,&channelsdialog.y_y2,rd.value);
                               break;
                       case 5:
                               mark = "x1";
-                              vectorFindOrAdd(&x_x1,&y_x1,rd.value);
+                              vectorFindOrAdd(&channelsdialog.x_x1,&channelsdialog.y_x1,rd.value);
                               break;
                       case 7:
                               mark = "y1";
-                              vectorFindOrAdd(&x_y1,&y_y1,rd.value);
+                              vectorFindOrAdd(&channelsdialog.x_y1,&channelsdialog.y_y1,rd.value);
                               break;
                       default:
                               mark = "?";
@@ -383,10 +393,10 @@ void MainWindow::loadFile(){
 
               }
 
-              channelsdialog.plot_x1->addPlot(x_x1,y_x1,"x1","red");
-              channelsdialog.plot_x2->addPlot(x_x2,y_x2,"x2","red");
-              channelsdialog.plot_y1->addPlot(x_y1,y_y1,"y1","blue");
-              channelsdialog.plot_y2->addPlot(x_y2,y_y2,"y2","blue");
+              channelsdialog.plot_x1->addPlot(channelsdialog.x_x1,channelsdialog.y_x1,"x1","red");
+              channelsdialog.plot_x2->addPlot(channelsdialog.x_x2,channelsdialog.y_x2,"x2","red");
+              channelsdialog.plot_y1->addPlot(channelsdialog.x_y1,channelsdialog.y_y1,"y1","blue");
+              channelsdialog.plot_y2->addPlot(channelsdialog.x_y2,channelsdialog.y_y2,"y2","blue");
         }
 
         plot2d->buildNeutronData(_nd);
@@ -467,6 +477,37 @@ void MainWindow::averageBoxChanged(double value){
                                                                             boxaveragedialog.spinbox_h->value(),
                                                                             boxaveragedialog.spinbox_w->value()))+
                                                     "</b>");
+}
+
+void MainWindow::exportTxt(){
+        QString filename = QFileDialog::getSaveFileName(nullptr,"export to txt files","","*.*");
+        _nd->data_matrix->exportTxt(filename+"_data_matrix.txt");
+
+        QFile fx1(filename+"_x1.txt");
+        QFile fx2(filename+"_x2.txt");
+        QFile fy1(filename+"_y1.txt");
+        QFile fy2(filename+"_y2.txt");
+
+        fx1.open(QIODevice::WriteOnly);
+        fx2.open(QIODevice::WriteOnly);
+        fy1.open(QIODevice::WriteOnly);
+        fy2.open(QIODevice::WriteOnly);
+
+        QTextStream tsx1(&fx1);
+        QTextStream tsx2(&fx2);
+        QTextStream tsy1(&fy1);
+        QTextStream tsy2(&fy2);
+
+        tsx1 << "# (channel count) x1: " << Qt::endl;
+        for(int i=0;i<channelsdialog.x_x1.size();i++) tsx1 << QString::number(channelsdialog.x_x1.at(i)) << " " << QString::number(channelsdialog.y_x1.at(i)) << Qt::endl;
+        tsx2 << "# (channel count) x2: " << Qt::endl;
+        for(int i=0;i<channelsdialog.x_x2.size();i++) tsx2 << QString::number(channelsdialog.x_x2.at(i)) << " " << QString::number(channelsdialog.y_x2.at(i)) << Qt::endl;
+        tsy1 << "# (channel count) y1: " << Qt::endl;
+        for(int i=0;i<channelsdialog.x_y1.size();i++) tsy1 << QString::number(channelsdialog.x_y1.at(i)) << " " << QString::number(channelsdialog.y_y1.at(i)) << Qt::endl;
+        tsy2 << "# (channel count) y2: " << Qt::endl;
+        for(int i=0;i<channelsdialog.x_y2.size();i++) tsy2 << QString::number(channelsdialog.x_y2.at(i)) << " " << QString::number(channelsdialog.y_y2.at(i)) << Qt::endl;
+
+        fx1.close(); fx2.close(); fy1.close(); fy2.close();
 }
 
 /* EOF */

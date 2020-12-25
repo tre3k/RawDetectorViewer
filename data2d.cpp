@@ -69,6 +69,21 @@ void Data2D::copy(Data2D *array){
     }
 }
 
-int Data2D::errno(){
+int Data2D::errNo(){
     return err;
+}
+
+void Data2D::exportTxt(QString filename){
+        QFile f(filename);
+        f.open(QIODevice::WriteOnly);
+        QTextStream ts(&f);
+
+        ts << "# Data matrix " << QString::number(sx) << "x" << QString::number(sy) << Qt::endl;
+        for(unsigned long j=0;j<sy;j++){
+                for(unsigned long i=0;i<sx;i++){
+                        ts << QString::number(get(i,j)) << " ";
+                }
+                ts << Qt::endl;
+        }
+        f.close();
 }

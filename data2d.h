@@ -5,6 +5,9 @@
  * Software for Build analitical data and processing experemental data
  */
 
+#include <QString>
+#include <QFile>
+#include <QTextStream>
 
 #ifndef DATA2D_H
 #define DATA2D_H
@@ -23,8 +26,9 @@ public:
     void set(unsigned long int x, unsigned long int y, double value);
     double get(unsigned long int x, unsigned long int y);
     void copy(Data2D *array);
-    int errno(void);
+    int errNo(void);
     void del(void);
+    void exportTxt(QString filename);
 
 private:
     unsigned long int sx;
