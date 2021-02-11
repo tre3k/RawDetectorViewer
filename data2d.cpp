@@ -78,12 +78,12 @@ void Data2D::exportTxt(QString filename){
         f.open(QIODevice::WriteOnly);
         QTextStream ts(&f);
 
-        ts << "# Data matrix " << QString::number(sx) << "x" << QString::number(sy) << Qt::endl;
+        ts << "# Data matrix " << QString::number(sx) << "x" << QString::number(sy) << endl;
         for(unsigned long j=0;j<sy;j++){
                 for(unsigned long i=0;i<sx;i++){
                         ts << QString::number(get(i,j)) << " ";
                 }
-                ts << Qt::endl;
+                ts << endl;
         }
         f.close();
 }

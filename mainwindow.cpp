@@ -500,14 +500,14 @@ void MainWindow::exportTxt(){
         QTextStream tsy1(&fy1);
         QTextStream tsy2(&fy2);
 
-        tsx1 << "# (channel count) x1: " << Qt::endl;
-        for(int i=0;i<channelsdialog.x_x1.size();i++) tsx1 << QString::number(channelsdialog.x_x1.at(i)) << " " << QString::number(channelsdialog.y_x1.at(i)) << Qt::endl;
-        tsx2 << "# (channel count) x2: " << Qt::endl;
-        for(int i=0;i<channelsdialog.x_x2.size();i++) tsx2 << QString::number(channelsdialog.x_x2.at(i)) << " " << QString::number(channelsdialog.y_x2.at(i)) << Qt::endl;
-        tsy1 << "# (channel count) y1: " << Qt::endl;
-        for(int i=0;i<channelsdialog.x_y1.size();i++) tsy1 << QString::number(channelsdialog.x_y1.at(i)) << " " << QString::number(channelsdialog.y_y1.at(i)) << Qt::endl;
-        tsy2 << "# (channel count) y2: " << Qt::endl;
-        for(int i=0;i<channelsdialog.x_y2.size();i++) tsy2 << QString::number(channelsdialog.x_y2.at(i)) << " " << QString::number(channelsdialog.y_y2.at(i)) << Qt::endl;
+        tsx1 << "# (channel count) x1: " << endl;
+        for(int i=0;i<channelsdialog.x_x1.size();i++) tsx1 << QString::number(channelsdialog.x_x1.at(i)) << " " << QString::number(channelsdialog.y_x1.at(i)) << endl;
+        tsx2 << "# (channel count) x2: " << endl;
+        for(int i=0;i<channelsdialog.x_x2.size();i++) tsx2 << QString::number(channelsdialog.x_x2.at(i)) << " " << QString::number(channelsdialog.y_x2.at(i)) << endl;
+        tsy1 << "# (channel count) y1: " << endl;
+        for(int i=0;i<channelsdialog.x_y1.size();i++) tsy1 << QString::number(channelsdialog.x_y1.at(i)) << " " << QString::number(channelsdialog.y_y1.at(i)) << endl;
+        tsy2 << "# (channel count) y2: " << endl;
+        for(int i=0;i<channelsdialog.x_y2.size();i++) tsy2 << QString::number(channelsdialog.x_y2.at(i)) << " " << QString::number(channelsdialog.y_y2.at(i)) << endl;
 
         fx1.close(); fx2.close(); fy1.close(); fy2.close();
 }
