@@ -149,6 +149,7 @@ void MainWindow::buildBoxAverageDialog(){
         connect(boxaveragedialog.spinbox_center_y,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
         connect(boxaveragedialog.spinbox_w,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
         connect(boxaveragedialog.spinbox_h,SIGNAL(valueChanged(double)),this,SLOT(averageBoxChanged(double)));
+        connect(this,SIGNAL(fileLoaded()),this,SLOT(averageBoxChanged(double)));
 
 }
 
@@ -403,6 +404,7 @@ void MainWindow::loadFile(){
 
         str = "all neutrons: "+QString::number(count)+", correct: "+QString::number(count-fail_count)+", "+QString::number(100.0*(count-fail_count)/count)+"%";
         this->statusBar()->showMessage(str);
+        emit fileLoaded();
 }
 
 void MainWindow::changeResolution(int index){

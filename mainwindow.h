@@ -137,6 +137,7 @@ private:
 
 
 signals:
+        void fileLoaded();
 
 public slots:
         void openFile(void){
